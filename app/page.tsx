@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import ProjectCard from "@/components/ProjectCard";
-import { getProjects, getServices, getSettings } from "@/lib/api";
+import RichText from "@/components/RichText";
+import { getProjects, getServices, getSettings, mediaPath } from "@/lib/api";
 
 export default async function HomePage() {
   // Render per request (the API may not be reachable at build time);
@@ -40,6 +41,10 @@ export default async function HomePage() {
               {services.map((service) => (
                 <Link key={service.slug} href={`/services/${service.slug}`} className="card">
                   <div className="card-body">
+                    {mediaPath(service.icon) && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img className="card-icon" src={mediaPath(service.icon)!} alt="" loading="lazy" />
+                    )}
                     <h3>{service.title}</h3>
                     <p>{service.summary}</p>
                   </div>
@@ -70,7 +75,7 @@ export default async function HomePage() {
         <section className="section">
           <div className="container prose">
             <h2>About</h2>
-            <p className="pre-line">{settings.about_text}</p>
+            <RichText text={settings.about_text} />
             <p className="more">
               <Link href="/about">More about me &rarr;</Link>
             </p>

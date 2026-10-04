@@ -6,6 +6,7 @@
   --soft: #f7f7f7;
   --accent: #d92b26;
   --accent-dark: #b9211d;
+  --accent-soft: #e98a86;
   --radius: 10px;
   --max: 1040px;
 }
@@ -446,4 +447,83 @@ p {
   .section {
     padding: 44px 0;
   }
+}
+
+.card-icon {
+  align-self: flex-start;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 14px;
+  object-fit: contain;
+}
+
+.figure {
+  margin: 1.5em 0;
+}
+
+.figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.figure figcaption {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+  margin-bottom: 28px;
+  font-size: 0.9rem;
+}
+
+.breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  color: var(--muted);
+  list-style: none;
+}
+
+.breadcrumbs li:not(:last-child)::after {
+  margin-left: 6px;
+  content: "/";
+  color: var(--accent-soft);
+}
+
+.breadcrumbs a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+  color: var(--accent);
+}
+
+.breadcrumbs [aria-current="page"] {
+  color: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* Formatted text from the admin */
+.prose p a,
+.prose .rich-list a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.rich-list {
+  margin: 0 0 1em;
+  padding-left: 1.3em;
+}
+
+.rich-list li {
+  margin-bottom: 0.3em;
 }

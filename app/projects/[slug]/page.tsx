@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import RichText from "@/components/RichText";
 import { getProject, mediaPath } from "@/lib/api";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -27,10 +29,8 @@ export default async function ProjectDetailPage({ params }: Props) {
 
   return (
     <section className="section">
+      <Breadcrumbs items={[{ label: "Projects", href: "/projects" }, { label: project.title }]} />
       <div className="container prose">
-        <p className="eyebrow">
-          <Link href="/projects">Projects</Link>
-        </p>
         <h1>{project.title}</h1>
         {project.client_name && <p className="meta">{project.client_name}</p>}
         <p className="lead">{project.summary}</p>
@@ -53,7 +53,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         {sections.map((section) => (
           <div key={section.label} className="case-section">
             <h2 className="eyebrow">{section.label}</h2>
-            <p className="pre-line">{section.text}</p>
+            <RichText text={section.text} />
           </div>
         ))}
 

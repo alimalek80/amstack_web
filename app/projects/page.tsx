@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import ProjectCard from "@/components/ProjectCard";
 import { getProjects } from "@/lib/api";
 
@@ -14,6 +15,7 @@ export default async function ProjectsPage() {
 
   return (
     <section className="section">
+      <Breadcrumbs items={[{ label: "Projects" }]} />
       <div className="container">
         <h1>Projects</h1>
         {projects.length === 0 ? (

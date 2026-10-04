@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import ContactForm from "@/components/ContactForm";
 import { getSettings } from "@/lib/api";
 
@@ -14,6 +15,7 @@ export default async function ContactPage() {
 
   return (
     <section className="section">
+      <Breadcrumbs items={[{ label: "Contact" }]} />
       <div className="container contact-layout">
         <div>
           <h1>Contact</h1>

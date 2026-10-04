@@ -11,8 +11,9 @@ export type SiteSettings = {
   booking_url: string;
 };
 
-export type ServiceSummary = { slug: string; title: string; summary: string };
-export type ServiceDetail = ServiceSummary & { description: string };
+export type ServiceSummary = { slug: string; title: string; summary: string; icon: string | null };
+export type ServiceImage = { image: string; alt: string; caption: string };
+export type ServiceDetail = ServiceSummary & { description: string; images: ServiceImage[] };
 
 export type ProjectSummary = {
   slug: string;
