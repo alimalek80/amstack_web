@@ -1,0 +1,17 @@
+# Dependencies and build output
+node_modules/
+.next/
+out/
+
+# Env files (keep the example)
+.env*
+!.env.example
+
+# Misc
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
