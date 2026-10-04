@@ -4,6 +4,7 @@ export type SiteSettings = {
   hero_headline: string;
   hero_subheadline: string;
   about_text: string;
+  about_photo: string | null;
   email: string;
   linkedin_url: string;
   github_url: string;

@@ -42,6 +42,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   hero_subheadline:
     "Company sites, shops, custom features, website chatbots, Telegram bots and SaaS platforms, from simple to advanced.",
   about_text: "",
+  about_photo: null,
   email: "",
   linkedin_url: "",
   github_url: "",

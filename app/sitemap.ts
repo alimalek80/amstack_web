@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 const SITE_URL = process.env.SITE_URL ?? "https://amstack.org";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const pages = ["", "/services", "/projects", "/contact"].map((path) => ({
+  const pages = ["", "/services", "/projects", "/about", "/contact"].map((path) => ({
     url: `${SITE_URL}${path}`,
   }));
   try {

@@ -303,6 +303,23 @@ p {
   margin-top: 1.8em;
 }
 
+/* About */
+.about-layout {
+  display: grid;
+  gap: 48px;
+  align-items: start;
+  grid-template-columns: 300px minmax(0, 1fr);
+}
+
+.about-photo {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--soft);
+}
+
 /* Contact */
 .contact-layout {
   display: grid;
@@ -405,6 +422,15 @@ p {
   .contact-layout {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+
+  .about-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .about-photo {
+    max-width: 240px;
   }
 }
 

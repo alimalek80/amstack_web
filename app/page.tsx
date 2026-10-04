@@ -71,6 +71,9 @@ export default async function HomePage() {
           <div className="container prose">
             <h2>About</h2>
             <p className="pre-line">{settings.about_text}</p>
+            <p className="more">
+              <Link href="/about">More about me &rarr;</Link>
+            </p>
           </div>
         </section>
       )}
