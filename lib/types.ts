@@ -22,12 +22,16 @@ export type ProjectSummary = {
   summary: string;
   cover_image: string | null;
   live_url: string;
+  repo_url: string;
   is_featured: boolean;
   tech_stack: Technology[];
 };
+
+export type ProjectImage = { image: string; alt: string; caption: string };
 
 export type ProjectDetail = ProjectSummary & {
   problem: string;
   solution: string;
   result: string;
+  images: ProjectImage[];
 };
