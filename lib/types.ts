@@ -35,3 +35,31 @@ export type ProjectDetail = ProjectSummary & {
   result: string;
   images: ProjectImage[];
 };
+
+// ----- Blog -----
+
+export type BlogCategory = { name: string; slug: string; description: string; post_count: number };
+export type CategoryRef = { name: string; slug: string };
+
+export type TextBlock = { type: "text"; text: string };
+export type HeadingBlock = { type: "heading"; text: string; level: 2 | 3 };
+export type CodeBlock = { type: "code"; code: string; language: string; filename: string };
+export type ImageBlock = { type: "image"; src: string; alt: string; caption: string };
+export type NoteBlock = { type: "note"; text: string; tone: "info" | "warning" };
+export type PostBlock = TextBlock | HeadingBlock | CodeBlock | ImageBlock | NoteBlock;
+
+export type PostSummary = {
+  title: string;
+  slug: string;
+  excerpt: string;
+  category: CategoryRef | null;
+  cover_image: string | null;
+  published_at: string | null;
+  reading_minutes: number;
+};
+
+export type PostDetail = PostSummary & {
+  body: PostBlock[];
+  repo_url: string;
+  updated_at: string;
+};

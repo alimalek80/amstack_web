@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Archivo, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
-import { getSettings } from "@/lib/api";
 import "./globals.css";
 
 const SITE_URL = process.env.SITE_URL ?? "https://amstack.org";
@@ -23,15 +20,11 @@ export const metadata: Metadata = {
     "Custom company websites, online stores, web apps, website chatbots, Telegram bots and SaaS platforms, from simple to advanced.",
 };
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
-  const settings = await getSettings();
+// Header and footer live in app/(site)/layout.tsx; the dashboard has its own shell.
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
-      <body>
-        <Header />
-        <main>{children}</main>
-        <Footer settings={settings} />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

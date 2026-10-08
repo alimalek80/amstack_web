@@ -1,4 +1,7 @@
 import type {
+  BlogCategory,
+  PostDetail,
+  PostSummary,
   ProjectDetail,
   ProjectSummary,
   ServiceDetail,
@@ -6,7 +9,7 @@ import type {
   SiteSettings,
 } from "./types";
 
-const API_ORIGIN = process.env.API_ORIGIN ?? "http://127.0.0.1:8000";
+export const API_ORIGIN = process.env.API_ORIGIN ?? "http://127.0.0.1:8000";
 
 // Responses are cached by Next.js for 10 minutes, so most visits never reach Django.
 const REVALIDATE_SECONDS = Number(process.env.API_REVALIDATE_SECONDS ?? 600);
@@ -20,17 +23,20 @@ export class ApiError extends Error {
   }
 }
 
-async function apiGet<T>(path: string): Promise<T> {
+// Cache tag for blog data, refreshed right away when a post is saved in the dashboard.
+export const BLOG_TAG = "blog";
+
+async function apiGet<T>(path: string, tags?: string[]): Promise<T> {
   const response = await fetch(`${API_ORIGIN}/api${path}`, {
-    next: { revalidate: REVALIDATE_SECONDS },
+    next: { revalidate: REVALIDATE_SECONDS, tags },
   });
   if (!response.ok) throw new ApiError(response.status, path);
   return response.json() as Promise<T>;
 }
 
-async function getOrNull<T>(path: string): Promise<T | null> {
+async function getOrNull<T>(path: string, tags?: string[]): Promise<T | null> {
   try {
-    return await apiGet<T>(path);
+    return await apiGet<T>(path, tags);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) return null;
     throw error;
@@ -64,6 +70,15 @@ export const getService = (slug: string) => getOrNull<ServiceDetail>(`/services/
 export const getProjects = (featuredOnly = false) =>
   apiGet<ProjectSummary[]>(featuredOnly ? "/projects/?featured=true" : "/projects/");
 export const getProject = (slug: string) => getOrNull<ProjectDetail>(`/projects/${slug}/`);
+
+export const getBlogCategories = () => apiGet<BlogCategory[]>("/blog/categories/", [BLOG_TAG]);
+export const getPosts = (category?: string) =>
+  apiGet<PostSummary[]>(
+    category ? `/blog/posts/?category=${encodeURIComponent(category)}` : "/blog/posts/",
+    [BLOG_TAG],
+  );
+export const getPost = (slug: string) =>
+  getOrNull<PostDetail>(`/blog/posts/${encodeURIComponent(slug)}/`, [BLOG_TAG]);
 
 // Django returns absolute image URLs using the host it was called with (for example
 // http://backend:8000 inside Docker), which a browser cannot open. Keep only the path

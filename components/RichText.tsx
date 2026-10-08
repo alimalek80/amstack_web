@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 
-// Tiny, safe formatter for text written in the Django admin:
-//   **bold**   [link text](https://example.com)   lines starting with "- " become a list.
+// Tiny, safe formatter for text written in the Django admin or the blog dashboard:
+//   **bold**   `inline code`   [link text](https://example.com)   lines starting with "- " become a list.
 // Blank line = new paragraph. No raw HTML is ever rendered.
 
-const INLINE = /\*\*(.+?)\*\*|\[([^\]]+)\]\(([^)\s]+)\)/g;
+const INLINE = /\*\*(.+?)\*\*|\[([^\]]+)\]\(([^)\s]+)\)|`([^`\n]+)`/g;
 
 function isSafeUrl(url: string): boolean {
   return /^(https?:\/\/|mailto:|\/(?!\/)|#)/i.test(url);
@@ -20,6 +20,8 @@ function renderInline(text: string, keyPrefix = "i"): ReactNode[] {
     const key = `${keyPrefix}-${n++}`;
     if (match[1] !== undefined) {
       nodes.push(<strong key={key}>{renderInline(match[1], key)}</strong>);
+    } else if (match[4] !== undefined) {
+      nodes.push(<code key={key}>{match[4]}</code>);
     } else if (isSafeUrl(match[3])) {
       const external = /^https?:\/\//i.test(match[3]);
       nodes.push(
