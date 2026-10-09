@@ -122,6 +122,26 @@ function renderNode(node: RichNode, key: string, ctx: Ctx): ReactNode {
       return <li key={key}>{renderChildren(node, ctx)}</li>;
     case "blockquote":
       return <blockquote key={key}>{renderChildren(node, ctx)}</blockquote>;
+    case "table":
+      return (
+        <div key={key} className="table-wrap">
+          <table>
+            <tbody>{renderChildren(node, ctx)}</tbody>
+          </table>
+        </div>
+      );
+    case "tableRow":
+      return <tr key={key}>{renderChildren(node, ctx)}</tr>;
+    case "tableHeader":
+    case "tableCell": {
+      const Cell = node.type === "tableHeader" ? "th" : "td";
+      const span = (v: unknown) => (Number(v) > 1 ? Number(v) : undefined);
+      return (
+        <Cell key={key} colSpan={span(node.attrs?.colspan)} rowSpan={span(node.attrs?.rowspan)}>
+          {renderChildren(node, ctx)}
+        </Cell>
+      );
+    }
     case "horizontalRule":
       return <hr key={key} />;
     case "hardBreak":

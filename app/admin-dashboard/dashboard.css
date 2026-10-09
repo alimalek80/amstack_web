@@ -723,6 +723,28 @@
   cursor: text;
 }
 
+/* Table editing */
+.rt-content table .selectedCell {
+  position: relative;
+}
+
+.rt-content table .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(217, 43, 38, 0.12);
+  pointer-events: none;
+}
+
+.rt-table-tools {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: 6px;
+  padding-left: 8px;
+  border-left: 1px solid var(--dash-line);
+}
+
 /* Code block inside the editor */
 .rt-code {
   margin: 1.4em 0;
@@ -957,6 +979,10 @@
 
   .rt-toolbar > * {
     flex: none;
+  }
+
+  .rt-table-tools {
+    flex-wrap: nowrap;
   }
 
   .rt-code-head span {

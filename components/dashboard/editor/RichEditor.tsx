@@ -3,6 +3,7 @@
 import CodeBlock from "@tiptap/extension-code-block";
 import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
+import { TableKit } from "@tiptap/extension-table";
 import { Placeholder } from "@tiptap/extensions";
 import { type Editor, EditorContent, ReactNodeViewRenderer, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -20,7 +21,7 @@ const CodeBlockWithLanguage = CodeBlock.extend({
 
 // Plain text that looks like Markdown (headings, code fences, lists, bold, links...).
 const MARKDOWN_HINT =
-  /^#{1,6}\s|^\s*(```|~~~)|^\s*[-*+]\s+\S|^\s*\d+\.\s+\S|^>\s|\*\*[^*\n]+\*\*|\[[^\]\n]+\]\([^)\s]+\)|`[^`\n]+`/m;
+  /^#{1,6}\s|^\s*(```|~~~)|^\s*\|.*\|\s*$|^\s*[-*+]\s+\S|^\s*\d+\.\s+\S|^>\s|\*\*[^*\n]+\*\*|\[[^\]\n]+\]\([^)\s]+\)|`[^`\n]+`/m;
 // HTML on the clipboard that already carries real formatting (from a web page or document).
 const RICH_HTML = /<(p|h[1-6]|li|pre|strong|b|em|i|a|blockquote|table)[\s>]/i;
 
@@ -58,6 +59,7 @@ const ICONS = {
   link: "M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1",
   image: "M4 5h16v14H4zM4 16l5-5 4 4 2-2 5 5M15 9.5h.01",
   divider: "M4 12h16",
+  table: "M4 5h16v14H4zM4 10h16M4 15h16M10 5v14",
   undo: "M9 14L4 9l5-5M4 9h10a6 6 0 0 1 0 12h-2",
   redo: "M15 14l5-5-5-5M20 9H10a6 6 0 0 0 0 12h2",
 };
@@ -111,6 +113,7 @@ function Toolbar({ editor, onImage, uploading }: { editor: Editor; onImage: () =
         blockquote: e.isActive("blockquote"),
         codeBlock: e.isActive("codeBlock"),
         image: e.isActive("image"),
+        table: e.isActive("table"),
         canUndo: e.can().undo(),
         canRedo: e.can().redo(),
       };
@@ -204,10 +207,40 @@ function Toolbar({ editor, onImage, uploading }: { editor: Editor; onImage: () =
       <ToolButton label={uploading ? "Uploading image…" : "Insert image (or paste / drop one)"} disabled={uploading} onClick={onImage}>
         <Icon d={ICONS.image} />
       </ToolButton>
+      <ToolButton
+        label="Insert table (3 × 3 with a header row) · or paste a Markdown table"
+        active={s.table}
+        onClick={() => chain().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+      >
+        <Icon d={ICONS.table} />
+      </ToolButton>
       {s.image && (
         <button type="button" className="rt-tool rt-tool-wide" onMouseDown={(e) => e.preventDefault()} onClick={editImage}>
           Alt text &amp; caption
         </button>
+      )}
+
+      {s.table && (
+        <span className="rt-table-tools" role="group" aria-label="Table">
+          <button type="button" className="rt-tool rt-tool-wide" onMouseDown={(e) => e.preventDefault()} onClick={() => chain().addRowAfter().run()}>
+            + Row
+          </button>
+          <button type="button" className="rt-tool rt-tool-wide" onMouseDown={(e) => e.preventDefault()} onClick={() => chain().addColumnAfter().run()}>
+            + Column
+          </button>
+          <button type="button" className="rt-tool rt-tool-wide" onMouseDown={(e) => e.preventDefault()} onClick={() => chain().deleteRow().run()}>
+            − Row
+          </button>
+          <button type="button" className="rt-tool rt-tool-wide" onMouseDown={(e) => e.preventDefault()} onClick={() => chain().deleteColumn().run()}>
+            − Column
+          </button>
+          <button type="button" className="rt-tool rt-tool-wide" onMouseDown={(e) => e.preventDefault()} onClick={() => chain().toggleHeaderRow().run()}>
+            Header row
+          </button>
+          <button type="button" className="rt-tool rt-tool-wide dash-danger" onMouseDown={(e) => e.preventDefault()} onClick={() => chain().deleteTable().run()}>
+            Delete table
+          </button>
+        </span>
       )}
 
       <span className="rt-sep rt-push" />
@@ -264,6 +297,7 @@ export default function RichEditor({
       CodeBlockWithLanguage.configure({ enableTabIndentation: true, tabSize: 2, defaultLanguage: "text" }),
       Highlight,
       Image,
+      TableKit.configure({ table: { resizable: false } }),
       Placeholder.configure({
         placeholder: "Start writing… Markdown works as you type: ## heading, **bold**, ```python for code, - list, > quote.",
       }),

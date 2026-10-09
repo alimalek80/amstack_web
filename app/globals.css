@@ -1489,6 +1489,68 @@ p {
   color: inherit;
 }
 
+/* Tables: scroll sideways on small screens instead of squeezing */
+.rich .table-wrap,
+.rich .tableWrapper {
+  margin: 1.5em 0;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.rich table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+  line-height: 1.55;
+}
+
+.rich th,
+.rich td {
+  min-width: 110px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.rich th + th,
+.rich td + td,
+.rich th + td,
+.rich td + th {
+  border-left: 1px solid var(--line);
+}
+
+.rich tr:last-child > * {
+  border-bottom: 0;
+}
+
+.rich th {
+  background: var(--ink);
+  color: #fff;
+  font-weight: 700;
+}
+
+.rich th :not(pre) > code {
+  border-color: #3a3a3a;
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.rich tbody tr:nth-child(even) > td {
+  background: #fafafa;
+}
+
+.rich th > p,
+.rich td > p {
+  margin: 0;
+}
+
+.rich th > p + p,
+.rich td > p + p {
+  margin-top: 0.5em;
+}
+
 .rich a {
   color: var(--accent);
   text-decoration: underline;
