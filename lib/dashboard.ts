@@ -1,7 +1,7 @@
 // Browser-side client for the superuser dashboard API (/api/dashboard/*).
 // Uses the Django session cookie; every write sends the CSRF token from the csrftoken cookie.
 
-import type { PostBlock } from "./types";
+import type { RichDoc } from "./types";
 
 export type DashUser = { email: string; name: string };
 export type DashCategory = {
@@ -30,7 +30,7 @@ export type DashPost = {
   category_name: string | null;
   cover: number | null;
   cover_url: string | null;
-  body: PostBlock[];
+  body: RichDoc;
   repo_url: string;
   is_published: boolean;
   published_at: string | null;

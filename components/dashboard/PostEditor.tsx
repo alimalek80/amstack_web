@@ -6,8 +6,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { refreshBlog } from "@/app/admin-dashboard/actions";
 import { type DashCategory, DashError, type DashPost, dash } from "@/lib/dashboard";
 import { formatDate } from "@/lib/format";
-import { markdownToBlocks } from "@/lib/markdownBlocks";
-import BlockEditor, { type EditorBlock, newBlock, withKey } from "./BlockEditor";
+import type { RichDoc, RichNode } from "@/lib/types";
+import RichEditor from "./editor/RichEditor";
 import ImagePicker from "./ImagePicker";
 
 type Form = {
@@ -19,8 +19,24 @@ type Form = {
   cover_url: string | null;
   repo_url: string;
   is_published: boolean;
-  blocks: EditorBlock[];
+  body: RichDoc;
 };
+
+const EMPTY_DOC: RichDoc = { type: "doc", content: [] };
+
+function plainText(node: RichNode): string {
+  if (node.type === "text") return node.text ?? "";
+  return (node.content ?? []).map(plainText).join(" ");
+}
+
+function hasNode(node: RichNode, type: string): boolean {
+  return node.type === type || (node.content ?? []).some((child) => hasNode(child, type));
+}
+
+// Tiptap keeps one empty paragraph in an empty editor; treat that as no content.
+function isEmptyDoc(doc: RichDoc): boolean {
+  return !plainText(doc).trim() && !hasNode(doc, "image") && !hasNode(doc, "horizontalRule");
+}
 
 const EMPTY: Form = {
   title: "",
@@ -31,7 +47,7 @@ const EMPTY: Form = {
   cover_url: null,
   repo_url: "",
   is_published: false,
-  blocks: [newBlock("text")],
+  body: EMPTY_DOC,
 };
 
 function slugify(text: string): string {
@@ -54,7 +70,7 @@ function fromPost(post: DashPost): Form {
     cover_url: post.cover_url,
     repo_url: post.repo_url,
     is_published: post.is_published,
-    blocks: post.body.map(withKey),
+    body: post.body?.type === "doc" ? post.body : EMPTY_DOC,
   };
 }
 
@@ -67,10 +83,7 @@ function payload(form: Form, publish: boolean) {
     cover: form.cover,
     repo_url: form.repo_url.trim(),
     is_published: publish,
-    // Drop the editor-only keys and blocks that were left empty.
-    body: form.blocks
-      .map(({ key: _key, ...block }) => block)
-      .filter((b) => (b.type === "code" ? b.code.trim() : b.type === "image" ? b.src : b.text.trim())),
+    body: isEmptyDoc(form.body) ? EMPTY_DOC : form.body,
   };
 }
 
@@ -84,8 +97,20 @@ export default function PostEditor({ postId }: { postId?: number }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<DashError | Error | null>(null);
   const [notice, setNotice] = useState("");
-  const [importOpen, setImportOpen] = useState(false);
-  const importText = useRef<HTMLTextAreaElement>(null);
+  const [titleMissing, setTitleMissing] = useState(false);
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+
+  // The formatting toolbar sticks right under the top bar, whose height changes when its
+  // buttons wrap, so keep its real height in a CSS variable.
+  const trackBarHeight = useCallback((bar: HTMLDivElement | null) => {
+    if (!bar) return;
+    const root = bar.parentElement!;
+    const update = () => root.style.setProperty("--editor-bar-h", `${bar.offsetHeight}px`);
+    const observer = new ResizeObserver(update);
+    observer.observe(bar);
+    update();
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     dash<DashCategory[]>("/categories/").then(setCategories).catch(() => {});
@@ -116,7 +141,9 @@ export default function PostEditor({ postId }: { postId?: number }) {
     async (publish: boolean) => {
       if (!form || busy) return;
       if (!form.title.trim()) {
-        setError(new Error("Add a title before saving."));
+        setTitleMissing(true);
+        setError(new Error("Add a title before saving. It goes in the Title field at the top."));
+        titleRef.current?.focus();
         return;
       }
       setBusy(true);
@@ -127,9 +154,8 @@ export default function PostEditor({ postId }: { postId?: number }) {
         const result = postId
           ? await dash<DashPost>(`/posts/${postId}/`, { method: "PATCH", json: body })
           : await dash<DashPost>("/posts/", { method: "POST", json: body });
-        const next = fromPost(result);
-        // Keep the editor's own block keys so focus and scroll position stay put.
-        next.blocks = result.body.length === form.blocks.length ? form.blocks : next.blocks;
+        // Keep the editor's own document, so the snapshot matches what the editor reports next.
+        const next = { ...fromPost(result), body: form.body };
         setPost(result);
         setForm(next);
         setSaved(JSON.stringify(next));
@@ -159,14 +185,10 @@ export default function PostEditor({ postId }: { postId?: number }) {
   }, [form, save]);
 
   const fieldError = (name: string) => (error instanceof DashError ? error.field(name) : undefined);
-  const wordCount = useMemo(
-    () =>
-      form?.blocks.reduce((n, b) => {
-        const text = b.type === "code" ? "" : b.type === "image" ? b.caption : b.text;
-        return n + (text.trim() ? text.trim().split(/\s+/).length : 0);
-      }, 0) ?? 0,
-    [form?.blocks],
-  );
+  const wordCount = useMemo(() => {
+    const text = form ? plainText(form.body).trim() : "";
+    return text ? text.split(/\s+/).length : 0;
+  }, [form?.body]);
 
   if (!form) {
     return (
@@ -182,20 +204,11 @@ export default function PostEditor({ postId }: { postId?: number }) {
     );
   }
 
-  function importMarkdown() {
-    const text = importText.current?.value ?? "";
-    const parsed = markdownToBlocks(text).map(withKey);
-    if (!parsed.length || !form) return;
-    const onlyEmpty = form.blocks.length === 1 && form.blocks[0].type === "text" && !form.blocks[0].text.trim();
-    set({ blocks: onlyEmpty ? parsed : [...form.blocks, ...parsed] });
-    setImportOpen(false);
-  }
-
   const status = form.is_published ? "Published" : "Draft";
 
   return (
     <div className="dash-editor">
-      <div className="dash-editor-bar">
+      <div className="dash-editor-bar" ref={trackBarHeight}>
         <Link href="/admin-dashboard" className="dash-back">
           ← Posts
         </Link>
@@ -245,16 +258,22 @@ export default function PostEditor({ postId }: { postId?: number }) {
 
       <div className="dash-editor-grid">
         <div className="dash-editor-main">
+          <label className="dash-title-label" htmlFor="post-title">
+            Title
+          </label>
           <textarea
-            className="dash-title-input"
+            id="post-title"
+            ref={titleRef}
+            className={titleMissing ? "dash-title-input is-invalid" : "dash-title-input"}
             value={form.title}
             onChange={(e) => {
               const title = e.target.value.replace(/\n/g, " ");
+              if (title.trim()) setTitleMissing(false);
               set(slugTouched ? { title } : { title, slug: slugify(title) });
             }}
-            placeholder="Post title"
+            placeholder="Write the post title…"
             rows={1}
-            aria-label="Title"
+            aria-invalid={titleMissing}
           />
           <textarea
             className="dash-excerpt-input"
@@ -267,32 +286,11 @@ export default function PostEditor({ postId }: { postId?: number }) {
 
           <div className="dash-blocks-head">
             <span className="dash-muted">
-              {form.blocks.length} block{form.blocks.length === 1 ? "" : "s"} · about {Math.max(1, Math.round(wordCount / 200))} min read
+              {wordCount} words · about {Math.max(1, Math.round(wordCount / 200))} min read
             </span>
-            <button type="button" className="dash-link-btn" onClick={() => setImportOpen((v) => !v)} aria-expanded={importOpen}>
-              Import Markdown
-            </button>
           </div>
 
-          {importOpen && (
-            <div className="dash-card dash-import">
-              <p className="dash-muted">
-                Paste Markdown. Fenced code (```python), ## headings, &gt; notes and images with https links become blocks.
-                Tip: pasting Markdown with ``` into any text block converts it too.
-              </p>
-              <textarea ref={importText} className="dash-textarea dash-mono" rows={10} aria-label="Markdown to import" />
-              <div className="dash-cat-actions">
-                <button type="button" className="dash-btn dash-btn-primary" onClick={importMarkdown}>
-                  Add as blocks
-                </button>
-                <button type="button" className="dash-btn" onClick={() => setImportOpen(false)}>
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
-          <BlockEditor blocks={form.blocks} onChange={(blocks) => set({ blocks })} />
+          <RichEditor initial={form.body} onChange={(body) => set({ body })} />
         </div>
 
         <aside className="dash-editor-side">
@@ -372,7 +370,7 @@ export default function PostEditor({ postId }: { postId?: number }) {
               </p>
             </section>
           )}
-          <p className="dash-muted dash-hint">Ctrl + S saves. In code blocks, Tab indents (Esc then Tab moves on).</p>
+          <p className="dash-muted dash-hint">Ctrl + S saves. Paste Markdown and it is converted. In code blocks, Tab indents.</p>
         </aside>
       </div>
     </div>

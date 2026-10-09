@@ -41,12 +41,16 @@ export type ProjectDetail = ProjectSummary & {
 export type BlogCategory = { name: string; slug: string; description: string; post_count: number };
 export type CategoryRef = { name: string; slug: string };
 
-export type TextBlock = { type: "text"; text: string };
-export type HeadingBlock = { type: "heading"; text: string; level: 2 | 3 };
-export type CodeBlock = { type: "code"; code: string; language: string; filename: string };
-export type ImageBlock = { type: "image"; src: string; alt: string; caption: string };
-export type NoteBlock = { type: "note"; text: string; tone: "info" | "warning" };
-export type PostBlock = TextBlock | HeadingBlock | CodeBlock | ImageBlock | NoteBlock;
+// Post body: rich text document from the dashboard editor (Tiptap / ProseMirror JSON).
+export type RichMark = { type: string; attrs?: Record<string, unknown> };
+export type RichNode = {
+  type: string;
+  attrs?: Record<string, unknown>;
+  content?: RichNode[];
+  text?: string;
+  marks?: RichMark[];
+};
+export type RichDoc = RichNode & { type: "doc" };
 
 export type PostSummary = {
   title: string;
@@ -59,7 +63,7 @@ export type PostSummary = {
 };
 
 export type PostDetail = PostSummary & {
-  body: PostBlock[];
+  body: RichDoc;
   repo_url: string;
   updated_at: string;
 };

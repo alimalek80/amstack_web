@@ -2,7 +2,7 @@ import { mediaPath } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import type { PostDetail } from "@/lib/types";
 import RepoLink from "../RepoLink";
-import PostBody from "./PostBody";
+import RichContent from "./RichContent";
 
 // The article itself; shared by the public post page and the dashboard preview.
 export default function PostArticle({ post }: { post: PostDetail }) {
@@ -27,7 +27,7 @@ export default function PostArticle({ post }: { post: PostDetail }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img className="post-cover" src={cover} alt="" />
       )}
-      <PostBody blocks={post.body} />
+      <RichContent doc={post.body} />
     </article>
   );
 }
