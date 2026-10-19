@@ -1666,6 +1666,25 @@ p {
   text-align: center;
 }
 
+.post-views {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 24px; /* reserved from first paint, so the number arriving never moves the page */
+  margin: 40px 0 0;
+  color: var(--muted);
+  font-family: var(--font-code);
+  font-size: 0.78rem;
+}
+
+.post-views svg {
+  flex: none;
+}
+
+.post-views + .post-end {
+  margin-top: 24px;
+}
+
 .post-end {
   margin-top: 56px;
   padding: 28px;

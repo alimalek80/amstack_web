@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import PostArticle from "@/components/blog/PostArticle";
+import ViewCount from "@/components/blog/ViewCount";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { getPost, mediaPath } from "@/lib/api";
 
@@ -56,6 +57,7 @@ export default async function BlogPostPage({ params }: Props) {
       />
       <PostArticle post={post} />
       <div className="container post-wrap">
+        <ViewCount key={post.slug} slug={post.slug} />
         <div className="post-end">
           <p>Need help building something like this?</p>
           <div className="actions">
