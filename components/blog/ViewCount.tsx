@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { recordPostView } from "@/lib/api";
+import { recordPostView } from "@/lib/views";
 import { formatViews } from "@/lib/format";
 
 // Records one view per page visit and shows the total. Public post page only.
