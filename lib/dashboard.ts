@@ -20,6 +20,7 @@ export type DashPostRow = {
   is_published: boolean;
   published_at: string | null;
   updated_at: string;
+  view_count: number;
 };
 export type DashPost = {
   id: number;

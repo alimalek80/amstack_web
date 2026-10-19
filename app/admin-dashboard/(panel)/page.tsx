@@ -105,6 +105,7 @@ export default function PostsPage() {
                 <th>Title</th>
                 <th>Category</th>
                 <th>Status</th>
+                <th className="dash-num">Views</th>
                 <th>Updated</th>
                 <th>
                   <span className="sr-only">Actions</span>
@@ -126,6 +127,7 @@ export default function PostsPage() {
                       {post.is_published ? "Published" : "Draft"}
                     </span>
                   </td>
+                  <td className="dash-num">{post.view_count.toLocaleString("en-US")}</td>
                   <td>{formatDate(post.updated_at)}</td>
                   <td className="dash-row-actions">
                     <Link href={`/admin-dashboard/posts/${post.id}`}>Edit</Link>

@@ -401,6 +401,11 @@
   border-bottom: 0;
 }
 
+.dash-table .dash-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .dash-row-title {
   display: block;
   font-weight: 700;
