@@ -18,6 +18,13 @@ export const metadata: Metadata = {
   },
   description:
     "Custom company websites, online stores, web apps, website chatbots, Telegram bots and SaaS platforms, from simple to advanced.",
+  openGraph: {
+    type: "website",
+    siteName: "amstack",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "amstack: websites, online stores, bots and SaaS, built end to end" }],
+  },
+  // Next fills twitter title, description and images from each page's openGraph.
+  twitter: { card: "summary_large_image" },
 };
 
 // Header and footer live in app/(site)/layout.tsx; the dashboard has its own shell.

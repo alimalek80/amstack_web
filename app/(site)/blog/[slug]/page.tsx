@@ -21,10 +21,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: post.excerpt,
     openGraph: {
       type: "article",
+      siteName: "amstack",
+      url: `/blog/${post.slug}`,
       title: post.title,
       description: post.excerpt,
       publishedTime: post.published_at ?? undefined,
-      images: cover ? [cover] : undefined,
+      // A page's openGraph replaces the root one, so repeat the default card here.
+      images: cover ? [cover] : [{ url: "/og-image.png", width: 1200, height: 630, alt: "amstack: websites, online stores, bots and SaaS, built end to end" }],
     },
   };
 }
