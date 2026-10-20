@@ -3,7 +3,8 @@ import Link from "next/link";
 import { connection } from "next/server";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { getBlogCategories, getPosts, mediaPath } from "@/lib/api";
-import { formatDate } from "@/lib/format";
+import EyeIcon from "@/components/blog/EyeIcon";
+import { formatDate, formatViews } from "@/lib/format";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -51,6 +52,9 @@ export default async function BlogPage({ searchParams }: Props) {
           <ul className="blog-list">
             {posts.map((post) => {
               const cover = mediaPath(post.cover_image);
+              // Render no count if the API did not send a usable number (never "NaN views").
+              const views =
+                typeof post.view_count === "number" && Number.isFinite(post.view_count) ? post.view_count : null;
               return (
                 <li key={post.slug}>
                   <Link href={`/blog/${post.slug}`} className="blog-item">
@@ -59,6 +63,12 @@ export default async function BlogPage({ searchParams }: Props) {
                         {post.category && <span className="blog-cat">{post.category.name}</span>}
                         <span>{formatDate(post.published_at)}</span>
                         <span>{post.reading_minutes} min read</span>
+                        {views !== null && (
+                          <span className="blog-views">
+                            <EyeIcon size={14} />
+                            {formatViews(views)}
+                          </span>
+                        )}
                       </p>
                       <h2>{post.title}</h2>
                       {post.excerpt && <p className="blog-excerpt">{post.excerpt}</p>}

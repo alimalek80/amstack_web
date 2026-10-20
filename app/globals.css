@@ -1353,6 +1353,18 @@ p {
   font-weight: 600;
 }
 
+/* View count on blog cards: inherits the muted meta grey (not red). */
+.blog-views {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap; /* "1,234 views" and its icon never split across lines */
+}
+
+.blog-views svg {
+  flex: none;
+}
+
 /* Post page */
 .post-wrap {
   max-width: 780px;

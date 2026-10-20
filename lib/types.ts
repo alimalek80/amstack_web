@@ -60,9 +60,14 @@ export type PostSummary = {
   cover_image: string | null;
   published_at: string | null;
   reading_minutes: number;
+  // Only the list endpoint sends this. Optional on purpose: a backend without the field
+  // (e.g. new web against an old API) must render no count instead of crashing.
+  view_count?: number;
 };
 
-export type PostDetail = PostSummary & {
+// The detail payload has no view_count (the post page count comes from the POST response).
+// If the detail serializer ever adds it, change this type too.
+export type PostDetail = Omit<PostSummary, "view_count"> & {
   body: RichDoc;
   repo_url: string;
   updated_at: string;
